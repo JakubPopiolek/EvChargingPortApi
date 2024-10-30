@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EvApplicationApi.Helpers;
 using EvApplicationApi.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +17,7 @@ namespace EvApplicationApi.Controllers
         }
 
         // GET: api/ApplicationItems
+        [NonAction]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ApplicationItem>>> GetApplicationItems()
         {
@@ -29,6 +25,7 @@ namespace EvApplicationApi.Controllers
         }
 
         // GET: api/ApplicationItems/5
+        [NonAction]
         [HttpGet("{id}")]
         public async Task<ActionResult<ApplicationItem>> GetApplicationItem(long id)
         {
@@ -44,9 +41,10 @@ namespace EvApplicationApi.Controllers
 
         // PUT: api/ApplicationItems/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [NonAction]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutApplicationItem(
-            long id,
+            Guid id,
             ApplicationItem applicationItem
         )
         {
@@ -94,6 +92,7 @@ namespace EvApplicationApi.Controllers
         }
 
         // DELETE: api/ApplicationItems/5
+        [NonAction]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteApplicationItem(long id)
         {
@@ -109,7 +108,7 @@ namespace EvApplicationApi.Controllers
             return NoContent();
         }
 
-        private bool ApplicationItemExists(long id)
+        private bool ApplicationItemExists(Guid id)
         {
             return _context.ApplicationItems.Any(e => e.Id == id);
         }
