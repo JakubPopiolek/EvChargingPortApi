@@ -17,5 +17,10 @@ public class ApplicationContext : DbContext
         options.UseSqlite(Configuration.GetConnectionString("WebApiDatabase"));
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ApplicationItem>().HasOne(applicationItem => applicationItem.Address);
+    }
+
     public DbSet<ApplicationItem> ApplicationItems { get; set; } = null!;
 }
