@@ -1,4 +1,5 @@
 using EvApplicationApi.Helpers;
+using EvApplicationApi.Repository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,8 +12,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("WebApiDatabase"))
+    options.UseSqlite(builder.Configuration.GetConnectionString("WebApiDatabase"))
 );
+
+builder.Services.AddScoped<IApplicationsRepository, ApplicationRepository>();
 
 var app = builder.Build();
 
