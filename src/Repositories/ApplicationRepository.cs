@@ -12,7 +12,7 @@ namespace EvApplicationApi.Repository
             this.context = context;
         }
 
-        public ApplicationItem GetApplicationItem(long id)
+        public ApplicationItem GetApplicationItem(Guid id)
         {
             return context.ApplicationItems.Find(id);
         }

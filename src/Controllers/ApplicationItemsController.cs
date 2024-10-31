@@ -27,7 +27,7 @@ namespace EvApplicationApi.Controllers
 
         // // GET: api/ApplicationItems/5
         [HttpGet("{id}")]
-        public ActionResult<ApplicationItem> GetApplicationItem(long id)
+        public ActionResult<ApplicationItem> GetApplicationItem(Guid id)
         {
             var applicationItem = _applicationRepository.GetApplicationItem(id);
 
