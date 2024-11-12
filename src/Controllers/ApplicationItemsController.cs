@@ -37,7 +37,7 @@ namespace EvApplicationApi.Controllers
                 return NotFound();
             }
 
-            return applicationItem;
+            return Ok(applicationItem);
         }
 
         // // PUT: api/ApplicationItems/5

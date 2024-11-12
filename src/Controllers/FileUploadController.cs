@@ -13,5 +13,27 @@ namespace EvApplicationApi.Controllers
         {
             _fileUploadRepository = fileUploadRepository;
         }
+
+        [HttpGet("{id}")]
+        public ActionResult<UploadedFile> GetUploadedFile(long id)
+        {
+            var uploadedFile = _fileUploadRepository.GetUploadedFile(id);
+
+            if (uploadedFile == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(uploadedFile);
+        }
+
+        [HttpPost]
+        public ActionResult<UploadedFile> UploadFile(UploadedFile uploadedFile)
+        {
+            _fileUploadRepository.InsertUploadedFile(uploadedFile);
+            _fileUploadRepository.Save();
+
+            return CreatedAtAction("GetUploadedFile", new { id = uploadedFile.Id }, uploadedFile);
+        }
     }
 }
