@@ -10,8 +10,14 @@ public class ApplicationContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder
+            .Entity<ApplicationItem>()
+            .HasMany(applicationItem => applicationItem.Files)
+            .WithOne(file => file.ApplicationItem);
         modelBuilder.Entity<ApplicationItem>().HasOne(applicationItem => applicationItem.Address);
     }
 
     public DbSet<ApplicationItem> ApplicationItems { get; set; }
+
+    public DbSet<UploadedFile> UploadedFiles { get; set; }
 }

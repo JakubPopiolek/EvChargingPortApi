@@ -1,6 +1,8 @@
 using EvApplicationApi.Helpers;
 using EvApplicationApi.Repository;
+using EvApplicationApi.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using src.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,8 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("WebApiDatabase"))
 );
 
-builder.Services.AddScoped<IApplicationsRepository, ApplicationRepository>();
+builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
+builder.Services.AddScoped<IFileUploadRepository, FileUploadRepository>();
 
 var app = builder.Build();
 
@@ -26,7 +29,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

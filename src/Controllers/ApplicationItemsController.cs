@@ -1,6 +1,7 @@
 using EvApplicationApi.Helpers;
 using EvApplicationApi.Models;
 using EvApplicationApi.Repository;
+using EvApplicationApi.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,9 +11,9 @@ namespace EvApplicationApi.Controllers
     [ApiController]
     public class ApplicationItemsController : ControllerBase
     {
-        private readonly IApplicationsRepository _applicationRepository;
+        private readonly IApplicationRepository _applicationRepository;
 
-        public ApplicationItemsController(IApplicationsRepository applicationRepository)
+        public ApplicationItemsController(IApplicationRepository applicationRepository)
         {
             _applicationRepository = applicationRepository;
         }
@@ -27,7 +28,7 @@ namespace EvApplicationApi.Controllers
 
         // // GET: api/ApplicationItems/5
         [HttpGet("{id}")]
-        public ActionResult<ApplicationItem> GetApplicationItem(Guid id)
+        public ActionResult<ApplicationItem> GetApplicationItem(long id)
         {
             var applicationItem = _applicationRepository.GetApplicationItem(id);
 

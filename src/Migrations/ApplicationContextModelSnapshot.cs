@@ -48,9 +48,9 @@ namespace EvApplicationApi.Migrations
 
             modelBuilder.Entity("EvApplicationApi.Models.ApplicationItem", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("AddressId")
                         .HasColumnType("INTEGER");
@@ -67,6 +67,9 @@ namespace EvApplicationApi.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("ReferenceNumber")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Vrn")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -78,6 +81,30 @@ namespace EvApplicationApi.Migrations
                     b.ToTable("ApplicationItems");
                 });
 
+            modelBuilder.Entity("UploadedFile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("ApplicationItemId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationItemId");
+
+                    b.ToTable("UploadedFile");
+                });
+
             modelBuilder.Entity("EvApplicationApi.Models.ApplicationItem", b =>
                 {
                     b.HasOne("Address", "Address")
@@ -87,6 +114,20 @@ namespace EvApplicationApi.Migrations
                         .IsRequired();
 
                     b.Navigation("Address");
+                });
+
+            modelBuilder.Entity("UploadedFile", b =>
+                {
+                    b.HasOne("EvApplicationApi.Models.ApplicationItem", "ApplicationItem")
+                        .WithMany("Files")
+                        .HasForeignKey("ApplicationItemId");
+
+                    b.Navigation("ApplicationItem");
+                });
+
+            modelBuilder.Entity("EvApplicationApi.Models.ApplicationItem", b =>
+                {
+                    b.Navigation("Files");
                 });
 #pragma warning restore 612, 618
         }

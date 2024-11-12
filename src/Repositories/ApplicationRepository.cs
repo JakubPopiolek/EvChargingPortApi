@@ -1,9 +1,10 @@
 using EvApplicationApi.Helpers;
 using EvApplicationApi.Models;
+using EvApplicationApi.Repository.Interfaces;
 
 namespace EvApplicationApi.Repository
 {
-    public class ApplicationRepository : IApplicationsRepository, IDisposable
+    public class ApplicationRepository : IApplicationRepository, IDisposable
     {
         private ApplicationContext context;
 
@@ -12,9 +13,9 @@ namespace EvApplicationApi.Repository
             this.context = context;
         }
 
-        public ApplicationItem GetApplicationItem(Guid id)
+        public ApplicationItem GetApplicationItem(long id)
         {
-            return context.ApplicationItems.Find(id);
+            return context.ApplicationItems.Find(id)!;
         }
 
         public void InsertApplication(ApplicationItem applicationItem)
