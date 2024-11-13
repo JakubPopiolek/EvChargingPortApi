@@ -1,6 +1,7 @@
 using EvApplicationApi.Helpers;
 using EvApplicationApi.Models;
-using EvApplicationApi.Repository.Interfaces;
+using EvApplicationApi.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace EvApplicationApi.Repository
 {
@@ -13,14 +14,23 @@ namespace EvApplicationApi.Repository
             this.context = context;
         }
 
-        public ApplicationItem GetApplicationItem(long id)
+        public ApplicationItem GetApplicationItem(Guid id)
         {
             return context.ApplicationItems.Find(id)!;
         }
 
-        public void InsertApplication(ApplicationItem applicationItem)
+        public Guid BeginApplication()
         {
-            context.ApplicationItems.Add(applicationItem);
+            Guid referenceNumber = Guid.NewGuid();
+            context.ApplicationItems.Add(
+                new ApplicationItem() { ReferenceNumber = referenceNumber }
+            );
+            return referenceNumber;
+        }
+
+        public void SubmitApplication(ApplicationItem applicationItem)
+        {
+            context.ApplicationItems.Update(applicationItem);
         }
 
         public void Save()

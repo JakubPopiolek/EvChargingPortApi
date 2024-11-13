@@ -17,11 +17,11 @@ namespace EvApplicationApi.Migrations
                 {
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Line1 = table.Column<string>(type: "TEXT", nullable: false),
+                    Line1 = table.Column<string>(type: "TEXT", nullable: true),
                     Line2 = table.Column<string>(type: "TEXT", nullable: true),
-                    City = table.Column<string>(type: "TEXT", nullable: false),
+                    City = table.Column<string>(type: "TEXT", nullable: true),
                     Province = table.Column<string>(type: "TEXT", nullable: true),
-                    Postcode = table.Column<string>(type: "TEXT", nullable: false)
+                    Postcode = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -32,44 +32,43 @@ namespace EvApplicationApi.Migrations
                 name: "ApplicationItems",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
                     ReferenceNumber = table.Column<Guid>(type: "TEXT", nullable: false),
-                    FirstName = table.Column<string>(type: "TEXT", nullable: false),
-                    LastName = table.Column<string>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: false),
-                    AddressId = table.Column<long>(type: "INTEGER", nullable: false),
-                    Vrn = table.Column<string>(type: "TEXT", nullable: false)
+                    FirstName = table.Column<string>(type: "TEXT", nullable: true),
+                    LastName = table.Column<string>(type: "TEXT", nullable: true),
+                    Email = table.Column<string>(type: "TEXT", nullable: true),
+                    AddressId = table.Column<long>(type: "INTEGER", nullable: true),
+                    Vrn = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ApplicationItems", x => x.Id);
+                    table.PrimaryKey("PK_ApplicationItems", x => x.ReferenceNumber);
                     table.ForeignKey(
                         name: "FK_ApplicationItems_Address_AddressId",
                         column: x => x.AddressId,
                         principalTable: "Address",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "UploadedFile",
+                name: "UploadedFiles",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Data = table.Column<string>(type: "TEXT", nullable: false),
-                    ApplicationItemId = table.Column<long>(type: "INTEGER", nullable: true)
+                    Data = table.Column<byte[]>(type: "BLOB", nullable: false),
+                    ApplicationReferenceNumber = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ApplicationItemReferenceNumber = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UploadedFile", x => x.Id);
+                    table.PrimaryKey("PK_UploadedFiles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UploadedFile_ApplicationItems_ApplicationItemId",
-                        column: x => x.ApplicationItemId,
+                        name: "FK_UploadedFiles_ApplicationItems_ApplicationItemReferenceNumber",
+                        column: x => x.ApplicationItemReferenceNumber,
                         principalTable: "ApplicationItems",
-                        principalColumn: "Id");
+                        principalColumn: "ReferenceNumber",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -78,16 +77,16 @@ namespace EvApplicationApi.Migrations
                 column: "AddressId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UploadedFile_ApplicationItemId",
-                table: "UploadedFile",
-                column: "ApplicationItemId");
+                name: "IX_UploadedFiles_ApplicationItemReferenceNumber",
+                table: "UploadedFiles",
+                column: "ApplicationItemReferenceNumber");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "UploadedFile");
+                name: "UploadedFiles");
 
             migrationBuilder.DropTable(
                 name: "ApplicationItems");

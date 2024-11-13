@@ -1,11 +1,13 @@
 using EvApplicationApi.Models;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace EvApplicationApi.Repository.Interfaces
+namespace EvApplicationApi.Repositories.Interfaces
 {
     public interface IApplicationRepository : IDisposable
     {
-        ApplicationItem GetApplicationItem(long id);
-        void InsertApplication(ApplicationItem applicationItem);
+        void SubmitApplication(ApplicationItem applicationItem);
+        Guid BeginApplication();
+        ApplicationItem GetApplicationItem(Guid id);
         void Save();
     }
 }

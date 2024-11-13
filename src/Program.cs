@@ -1,6 +1,6 @@
 using EvApplicationApi.Helpers;
+using EvApplicationApi.Repositories.Interfaces;
 using EvApplicationApi.Repository;
-using EvApplicationApi.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using src.Repositories;
 

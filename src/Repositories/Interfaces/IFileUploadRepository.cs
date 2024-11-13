@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using EvApplicationApi.Models;
 
-namespace src.Repositories
+namespace EvApplicationApi.Repositories.Interfaces
 {
     public interface IFileUploadRepository
     {

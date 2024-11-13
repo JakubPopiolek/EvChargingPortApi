@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EvApplicationApi.Helpers;
+using EvApplicationApi.Models;
+using EvApplicationApi.Repositories.Interfaces;
 
 namespace src.Repositories
 {

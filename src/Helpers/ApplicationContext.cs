@@ -13,7 +13,9 @@ public class ApplicationContext : DbContext
         modelBuilder
             .Entity<ApplicationItem>()
             .HasMany(applicationItem => applicationItem.Files)
-            .WithOne(file => file.ApplicationItem);
+            .WithOne(applicationItem => applicationItem.ApplicationItem)
+            .IsRequired(true);
+
         modelBuilder.Entity<ApplicationItem>().HasOne(applicationItem => applicationItem.Address);
     }
 

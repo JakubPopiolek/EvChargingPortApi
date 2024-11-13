@@ -1,9 +1,7 @@
 using EvApplicationApi.Helpers;
 using EvApplicationApi.Models;
-using EvApplicationApi.Repository;
-using EvApplicationApi.Repository.Interfaces;
+using EvApplicationApi.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace EvApplicationApi.Controllers
 {
@@ -18,17 +16,8 @@ namespace EvApplicationApi.Controllers
             _applicationRepository = applicationRepository;
         }
 
-        // GET: api/ApplicationItems
-        // [NonAction]
-        // [HttpGet]
-        // public async Task<ActionResult<IEnumerable<ApplicationItem>>> GetApplicationItems()
-        // {
-        //     return await _context.ApplicationItems.ToListAsync();
-        // }
-
-        // // GET: api/ApplicationItems/5
         [HttpGet("{id}")]
-        public ActionResult<ApplicationItem> GetApplicationItem(long id)
+        public ActionResult<ApplicationItem> GetApplicationItem(Guid id)
         {
             var applicationItem = _applicationRepository.GetApplicationItem(id);
 
@@ -39,6 +28,56 @@ namespace EvApplicationApi.Controllers
 
             return Ok(applicationItem);
         }
+
+        [HttpPut]
+        public ActionResult<ApplicationItem> SubmitApplication(ApplicationItem applicationItem)
+        {
+            if (applicationItem.ReferenceNumber == Guid.Empty)
+            {
+                return BadRequest("Missing Guid");
+            }
+
+            ApplicationItem applicationInDb = _applicationRepository.GetApplicationItem(
+                applicationItem.ReferenceNumber
+            );
+            if (applicationInDb != null)
+            {
+                applicationInDb.Address = applicationItem.Address;
+                applicationInDb.FirstName = applicationItem.FirstName;
+                applicationInDb.LastName = applicationItem.LastName;
+                applicationInDb.Vrn = applicationItem.Vrn;
+                applicationInDb.Email = applicationItem.Email;
+
+                _applicationRepository.SubmitApplication(applicationInDb);
+                _applicationRepository.Save();
+
+                return Ok(applicationItem);
+            }
+            else
+            {
+                return NotFound(
+                    "Could not find application with GUID: " + applicationItem.ReferenceNumber
+                );
+            }
+        }
+
+        [HttpPost]
+        public ActionResult<Guid> BeginApplication()
+        {
+            Guid applicationGuid = _applicationRepository.BeginApplication();
+            _applicationRepository.Save();
+            return applicationGuid;
+        }
+
+        // GET: api/ApplicationItems
+        // [NonAction]
+        // [HttpGet]
+        // public async Task<ActionResult<IEnumerable<ApplicationItem>>> GetApplicationItems()
+        // {
+        //     return await _context.ApplicationItems.ToListAsync();
+        // }
+
+        // // GET: api/ApplicationItems/5
 
         // // PUT: api/ApplicationItems/5
         // // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -77,18 +116,6 @@ namespace EvApplicationApi.Controllers
 
         // POST: api/ApplicationItems
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public ActionResult<ApplicationItem> PostApplicationItem(ApplicationItem applicationItem)
-        {
-            _applicationRepository.InsertApplication(applicationItem);
-            _applicationRepository.Save();
-
-            return CreatedAtAction(
-                "GetApplicationItem",
-                new { id = applicationItem.Id },
-                applicationItem
-            );
-        }
 
         // DELETE: api/ApplicationItems/5
         // [NonAction]
