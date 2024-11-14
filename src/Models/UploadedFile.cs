@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace EvApplicationApi.Models;
 
 public class UploadedFile
@@ -6,5 +8,7 @@ public class UploadedFile
     public required string Name { get; set; }
     public required byte[] Data { get; set; }
     public required Guid ApplicationReferenceNumber { get; set; }
-    public ApplicationItem? ApplicationItem { get; set; }
+
+    [JsonIgnore]
+    public ApplicationItem ApplicationItem { get; set; } = null!;
 }

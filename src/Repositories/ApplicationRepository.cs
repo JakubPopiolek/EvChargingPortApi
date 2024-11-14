@@ -1,7 +1,8 @@
+using EvApplicationApi.DTOs;
 using EvApplicationApi.Helpers;
 using EvApplicationApi.Models;
 using EvApplicationApi.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore;
 
 namespace EvApplicationApi.Repository
 {
@@ -14,12 +15,49 @@ namespace EvApplicationApi.Repository
             this.context = context;
         }
 
-        public ApplicationItem GetApplicationItem(Guid id)
+        public async Task<ApplicationItem?> GetApplicationItem(Guid referenceNumber)
         {
-            return context.ApplicationItems.Find(id)!;
+            return await context
+                .ApplicationItems.Include(ai => ai.Address)
+                .Include(ai => ai.Files)
+                .FirstOrDefaultAsync(ai => ai.ReferenceNumber == referenceNumber);
         }
 
-        public Guid BeginApplication()
+        public async Task<ApplicationItemDto?> GetApplicationItemPublic(Guid referenceNumber)
+        {
+            var applicationItem = await context
+                .ApplicationItems.Include(ai => ai.Address)
+                .Include(ai => ai.Files)
+                .FirstOrDefaultAsync(ai => ai.ReferenceNumber == referenceNumber);
+
+            if (applicationItem == null)
+            {
+                return null;
+            }
+
+            var applicationItemDto = new ApplicationItemDto
+            {
+                ReferenceNumber = applicationItem.ReferenceNumber,
+                FirstName = applicationItem.FirstName,
+                LastName = applicationItem.LastName,
+                Email = applicationItem.Email,
+                Address = new AddressDto()
+                {
+                    Line1 = applicationItem.Address?.Line1,
+                    Line2 = applicationItem.Address?.Line2,
+                    City = applicationItem.Address?.City,
+                    Province = applicationItem.Address?.Province,
+                    Postcode = applicationItem.Address?.Postcode,
+                },
+                Vrn = applicationItem.Vrn,
+                Files = applicationItem
+                    .Files.Select(f => new UploadedFileDto { Id = f.Id, Name = f.Name })
+                    .ToList(),
+            };
+            return applicationItemDto;
+        }
+
+        public Guid StartApplication()
         {
             Guid referenceNumber = Guid.NewGuid();
             context.ApplicationItems.Add(

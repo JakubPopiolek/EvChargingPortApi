@@ -1,4 +1,4 @@
-using EvApplicationApi.Helpers;
+using EvApplicationApi.DTOs;
 using EvApplicationApi.Models;
 using EvApplicationApi.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +16,12 @@ namespace EvApplicationApi.Controllers
             _applicationRepository = applicationRepository;
         }
 
-        [HttpGet("{id}")]
-        public ActionResult<ApplicationItem> GetApplicationItem(Guid id)
+        [HttpGet("{applicationReference}")]
+        public ActionResult<ApplicationItemDto> GetApplicationItem(Guid applicationReference)
         {
-            var applicationItem = _applicationRepository.GetApplicationItem(id);
+            var applicationItem = _applicationRepository
+                .GetApplicationItemPublic(applicationReference)
+                .Result;
 
             if (applicationItem == null)
             {
@@ -30,16 +32,20 @@ namespace EvApplicationApi.Controllers
         }
 
         [HttpPut]
-        public ActionResult<ApplicationItem> SubmitApplication(ApplicationItem applicationItem)
+        [Route("submitApplication")]
+        public async Task<ActionResult<ApplicationItem>> SubmitApplication(
+            ApplicationItem applicationItem
+        )
         {
             if (applicationItem.ReferenceNumber == Guid.Empty)
             {
                 return BadRequest("Missing Guid");
             }
 
-            ApplicationItem applicationInDb = _applicationRepository.GetApplicationItem(
+            ApplicationItem? applicationInDb = await _applicationRepository.GetApplicationItem(
                 applicationItem.ReferenceNumber
             );
+
             if (applicationInDb != null)
             {
                 applicationInDb.Address = applicationItem.Address;
@@ -62,81 +68,12 @@ namespace EvApplicationApi.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Guid> BeginApplication()
+        [Route("startApplication")]
+        public ActionResult<Guid> StartApplication()
         {
-            Guid applicationGuid = _applicationRepository.BeginApplication();
+            Guid applicationGuid = _applicationRepository.StartApplication();
             _applicationRepository.Save();
             return applicationGuid;
         }
-
-        // GET: api/ApplicationItems
-        // [NonAction]
-        // [HttpGet]
-        // public async Task<ActionResult<IEnumerable<ApplicationItem>>> GetApplicationItems()
-        // {
-        //     return await _context.ApplicationItems.ToListAsync();
-        // }
-
-        // // GET: api/ApplicationItems/5
-
-        // // PUT: api/ApplicationItems/5
-        // // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        // [NonAction]
-        // [HttpPut("{id}")]
-        // public async Task<IActionResult> PutApplicationItem(
-        //     Guid id,
-        //     ApplicationItem applicationItem
-        // )
-        // {
-        //     if (id != applicationItem.Id)
-        //     {
-        //         return BadRequest();
-        //     }
-
-        //     _context.Entry(applicationItem).State = EntityState.Modified;
-
-        //     try
-        //     {
-        //         await _context.SaveChangesAsync();
-        //     }
-        //     catch (DbUpdateConcurrencyException)
-        //     {
-        //         if (!ApplicationItemExists(id))
-        //         {
-        //             return NotFound();
-        //         }
-        //         else
-        //         {
-        //             throw;
-        //         }
-        //     }
-
-        //     return NoContent();
-        // }
-
-        // POST: api/ApplicationItems
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-
-        // DELETE: api/ApplicationItems/5
-        // [NonAction]
-        // [HttpDelete("{id}")]
-        // public async Task<IActionResult> DeleteApplicationItem(long id)
-        // {
-        //     var applicationItem = await _context.ApplicationItems.FindAsync(id);
-        //     if (applicationItem == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     _context.ApplicationItems.Remove(applicationItem);
-        //     await _context.SaveChangesAsync();
-
-        //     return NoContent();
-        // }
-
-        // private bool ApplicationItemExists(Guid id)
-        // {
-        //     return _context.ApplicationItems.Any(e => e.Id == id);
-        // }
     }
 }

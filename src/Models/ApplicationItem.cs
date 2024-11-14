@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EvApplicationApi.Models;
 
@@ -6,6 +7,7 @@ public class ApplicationItem
 {
     [Key]
     public Guid ReferenceNumber { get; set; }
+    public long? AddressId { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public string? Email { get; set; }

@@ -1,7 +1,8 @@
+using EvApplicationApi.DTOs;
 using EvApplicationApi.Models;
 using EvApplicationApi.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using src.Repositories;
+using Microsoft.IdentityModel.Tokens;
 
 namespace EvApplicationApi.Controllers
 {
@@ -17,58 +18,70 @@ namespace EvApplicationApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<UploadedFile> GetUploadedFile(long id)
+        public async Task<ActionResult<UploadedFile[]>> GetUploadedFiles(Guid id)
         {
-            var uploadedFile = _fileUploadRepository.GetUploadedFile(id);
+            var uploadedFiles = await _fileUploadRepository.GetUploadedFiles(id);
 
-            if (uploadedFile == null)
+            if (uploadedFiles.IsNullOrEmpty())
             {
                 return NotFound();
             }
 
-            return Ok(uploadedFile);
+            return Ok(uploadedFiles);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post(
-            List<IFormFile> files,
-            Guid applicationReferenceNumber
-        )
+        [HttpPost("{applicationReference}")]
+        public async Task<IActionResult> Post(List<IFormFile> files, Guid applicationReference)
         {
-            if (applicationReferenceNumber == Guid.Empty)
+            if (applicationReference == Guid.Empty)
             {
                 return BadRequest("Missing Guid");
             }
 
-            long size = files.Sum(f => f.Length);
-
-            var filePath = Path.GetTempFileName();
+            List<UploadedFileDto> uploadedFiles = [];
 
             foreach (var file in files)
             {
                 if (file.Length > 0)
                 {
-                    using (var stream = new MemoryStream())
+                    using var stream = new MemoryStream();
+                    await file.CopyToAsync(stream);
+
+                    // Upload the file if less than 2 MB
+                    if (stream.Length < 2097152)
                     {
-                        await file.CopyToAsync(stream);
-
-                        // Upload the file if less than 2 MB
-                        if (stream.Length < 2097152)
+                        var fileToUpload = new UploadedFile()
                         {
-                            var fileToUpload = new UploadedFile()
-                            {
-                                Data = stream.ToArray(),
-                                Name = file.FileName,
-                                ApplicationReferenceNumber = applicationReferenceNumber,
-                            };
+                            Data = stream.ToArray(),
+                            Name = file.FileName,
+                            ApplicationReferenceNumber = applicationReference,
+                        };
 
-                            _fileUploadRepository.InsertUploadedFile(fileToUpload);
-                            _fileUploadRepository.Save();
-                        }
+                        _fileUploadRepository.InsertUploadedFile(fileToUpload);
+                        _fileUploadRepository.Save();
+
+                        UploadedFileDto fileToUploadDto = new UploadedFileDto()
+                        {
+                            Id = fileToUpload.Id,
+                            Name = fileToUpload.Name,
+                        };
+
+                        uploadedFiles.Add(fileToUploadDto);
                     }
                 }
             }
-            return Ok(new { count = files.Count, size });
+            return Ok(uploadedFiles);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteFile(long id)
+        {
+            var success = await _fileUploadRepository.DeleteFileAsync(id);
+            if (!success)
+            {
+                return NotFound(new { Message = "Entity not found." });
+            }
+            return NoContent();
         }
     }
 }

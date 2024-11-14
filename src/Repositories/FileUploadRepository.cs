@@ -1,6 +1,8 @@
+using EvApplicationApi.DTOs;
 using EvApplicationApi.Helpers;
 using EvApplicationApi.Models;
 using EvApplicationApi.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace src.Repositories
 {
@@ -13,9 +15,30 @@ namespace src.Repositories
             this.context = context;
         }
 
-        public UploadedFile GetUploadedFile(long id)
+        public async Task<bool> DeleteFileAsync(long id)
         {
-            return context.UploadedFiles.Find(id)!;
+            var file = await context.UploadedFiles.FindAsync(id);
+            if (file == null)
+                return false;
+
+            context.Remove(file);
+            return await context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<List<UploadedFileDto>> GetUploadedFiles(Guid id)
+        {
+            var uploadedFiles = await context
+                .UploadedFiles.Where(item => item.ApplicationReferenceNumber == id)
+                .ToListAsync();
+
+            List<UploadedFileDto> outputFiles = [];
+
+            uploadedFiles.ForEach(file =>
+            {
+                UploadedFileDto fileDto = new UploadedFileDto() { Id = file.Id, Name = file.Name };
+                outputFiles.Add(fileDto);
+            });
+            return outputFiles;
         }
 
         public void InsertUploadedFile(UploadedFile uploadedFile)

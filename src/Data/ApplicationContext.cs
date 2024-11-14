@@ -12,11 +12,18 @@ public class ApplicationContext : DbContext
     {
         modelBuilder
             .Entity<ApplicationItem>()
-            .HasMany(applicationItem => applicationItem.Files)
-            .WithOne(applicationItem => applicationItem.ApplicationItem)
+            .HasMany(e => e.Files)
+            .WithOne(e => e.ApplicationItem)
+            .HasForeignKey(e => e.ApplicationReferenceNumber)
             .IsRequired(true);
 
-        modelBuilder.Entity<ApplicationItem>().HasOne(applicationItem => applicationItem.Address);
+        modelBuilder
+            .Entity<ApplicationItem>()
+            .HasOne(e => e.Address)
+            .WithOne(e => e.ApplicationItem)
+            .HasForeignKey<ApplicationItem>(e => e.AddressId)
+            .OnDelete(DeleteBehavior.SetNull)
+            .IsRequired(false);
     }
 
     public DbSet<ApplicationItem> ApplicationItems { get; set; }

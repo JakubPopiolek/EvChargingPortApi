@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EvApplicationApi.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20241113171352_init")]
+    [Migration("20241114103624_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -69,7 +69,8 @@ namespace EvApplicationApi.Migrations
 
                     b.HasKey("ReferenceNumber");
 
-                    b.HasIndex("AddressId");
+                    b.HasIndex("AddressId")
+                        .IsUnique();
 
                     b.ToTable("ApplicationItems");
                 });
@@ -79,9 +80,6 @@ namespace EvApplicationApi.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<Guid>("ApplicationItemReferenceNumber")
-                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("ApplicationReferenceNumber")
                         .HasColumnType("TEXT");
@@ -96,7 +94,7 @@ namespace EvApplicationApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationItemReferenceNumber");
+                    b.HasIndex("ApplicationReferenceNumber");
 
                     b.ToTable("UploadedFiles");
                 });
@@ -104,8 +102,9 @@ namespace EvApplicationApi.Migrations
             modelBuilder.Entity("EvApplicationApi.Models.ApplicationItem", b =>
                 {
                     b.HasOne("EvApplicationApi.Models.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId");
+                        .WithOne("ApplicationItem")
+                        .HasForeignKey("EvApplicationApi.Models.ApplicationItem", "AddressId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Address");
                 });
@@ -114,10 +113,15 @@ namespace EvApplicationApi.Migrations
                 {
                     b.HasOne("EvApplicationApi.Models.ApplicationItem", "ApplicationItem")
                         .WithMany("Files")
-                        .HasForeignKey("ApplicationItemReferenceNumber")
+                        .HasForeignKey("ApplicationReferenceNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("ApplicationItem");
+                });
+
+            modelBuilder.Entity("EvApplicationApi.Models.Address", b =>
+                {
                     b.Navigation("ApplicationItem");
                 });
 
