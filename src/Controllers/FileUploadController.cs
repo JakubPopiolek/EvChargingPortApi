@@ -2,6 +2,7 @@ using EvApplicationApi.DTOs;
 using EvApplicationApi.Models;
 using EvApplicationApi.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace EvApplicationApi.Controllers
@@ -12,9 +13,15 @@ namespace EvApplicationApi.Controllers
     {
         private readonly IFileUploadRepository _fileUploadRepository;
 
-        public FileUploadController(IFileUploadRepository fileUploadRepository)
+        private readonly IConfiguration _configuration;
+
+        public FileUploadController(
+            IFileUploadRepository fileUploadRepository,
+            IConfiguration configuration
+        )
         {
             _fileUploadRepository = fileUploadRepository;
+            _configuration = configuration;
         }
 
         [HttpGet("{id}")]
@@ -30,7 +37,18 @@ namespace EvApplicationApi.Controllers
             return Ok(uploadedFiles);
         }
 
+        [HttpGet]
+        [Route("getFileExtensions")]
+        public ActionResult<string[]> GetAllowedExtensions()
+        {
+            var permittedExtensions = _configuration
+                .GetSection("PermittedFileUploadExtensions")
+                .Get<string[]>();
+            return Ok(permittedExtensions);
+        }
+
         [HttpPost("{applicationReference}")]
+        [EnableRateLimiting("uploadFile_fixed")]
         public async Task<IActionResult> Post(List<IFormFile> files, Guid applicationReference)
         {
             if (applicationReference == Guid.Empty)
@@ -38,10 +56,21 @@ namespace EvApplicationApi.Controllers
                 return BadRequest("Missing Guid");
             }
 
+            var permittedExtensions = new[] { ".jpg", ".png", ".pdf", ".doc", ".docx", ".txt" };
+
             List<UploadedFileDto> uploadedFiles = [];
 
             foreach (var file in files)
             {
+                var extension = Path.GetExtension(file.FileName);
+
+                if (string.IsNullOrEmpty(extension) || !permittedExtensions.Contains(extension))
+                {
+                    var allowedExtensionsList = string.Join(" ", permittedExtensions);
+                    return UnprocessableEntity(
+                        $"Invalid file type. File must be one of: {allowedExtensionsList}."
+                    );
+                }
                 if (file.Length > 0)
                 {
                     using var stream = new MemoryStream();
@@ -67,6 +96,10 @@ namespace EvApplicationApi.Controllers
                         };
 
                         uploadedFiles.Add(fileToUploadDto);
+                    }
+                    else
+                    {
+                        return UnprocessableEntity("File is too large");
                     }
                 }
             }

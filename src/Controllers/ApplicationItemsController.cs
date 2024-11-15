@@ -2,6 +2,7 @@ using EvApplicationApi.DTOs;
 using EvApplicationApi.Models;
 using EvApplicationApi.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace EvApplicationApi.Controllers
 {
@@ -69,6 +70,7 @@ namespace EvApplicationApi.Controllers
 
         [HttpPost]
         [Route("startApplication")]
+        [EnableRateLimiting("startApplication_fixed")]
         public ActionResult<Guid> StartApplication()
         {
             Guid applicationGuid = _applicationRepository.StartApplication();
