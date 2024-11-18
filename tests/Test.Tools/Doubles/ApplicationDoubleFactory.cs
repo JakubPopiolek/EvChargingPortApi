@@ -5,7 +5,7 @@ namespace tests.TestTools.Doubles
 {
     public class ApplicationDoubleFactory
     {
-        public static ApplicationItem? CreateApplicationItem()
+        public static ApplicationItem CreateApplicationItem()
         {
             return new ApplicationItem
             {
@@ -29,7 +29,7 @@ namespace tests.TestTools.Doubles
             };
         }
 
-        public static ApplicationItemDto? CreateApplicationItemDto()
+        public static ApplicationItemDto CreateApplicationItemDto()
         {
             return new ApplicationItemDto
             {

@@ -31,7 +31,7 @@ namespace EvApplicationApi.Controllers
 
             if (uploadedFiles.IsNullOrEmpty())
             {
-                return NotFound();
+                return NotFound($"No files found for application with id: {id}");
             }
 
             return Ok(uploadedFiles);
@@ -49,14 +49,24 @@ namespace EvApplicationApi.Controllers
 
         [HttpPost("{applicationReference}")]
         [EnableRateLimiting("uploadFile_fixed")]
-        public async Task<IActionResult> Post(List<IFormFile> files, Guid applicationReference)
+        public async Task<ActionResult<ApplicationItemDto[]>> Post(
+            List<IFormFile> files,
+            Guid applicationReference
+        )
         {
             if (applicationReference == Guid.Empty)
             {
                 return BadRequest("Missing Guid");
             }
 
-            var permittedExtensions = new[] { ".jpg", ".png", ".pdf", ".doc", ".docx", ".txt" };
+            var permittedExtensions = _configuration
+                .GetSection("PermittedFileUploadExtensions")
+                .Get<string[]>();
+
+            if (permittedExtensions.IsNullOrEmpty())
+            {
+                return StatusCode(500, "Missing file configuration");
+            }
 
             List<UploadedFileDto> uploadedFiles = [];
 
@@ -64,9 +74,9 @@ namespace EvApplicationApi.Controllers
             {
                 var extension = Path.GetExtension(file.FileName);
 
-                if (string.IsNullOrEmpty(extension) || !permittedExtensions.Contains(extension))
+                if (string.IsNullOrEmpty(extension) || !permittedExtensions!.Contains(extension))
                 {
-                    var allowedExtensionsList = string.Join(" ", permittedExtensions);
+                    var allowedExtensionsList = string.Join(" ", permittedExtensions!);
                     return UnprocessableEntity(
                         $"Invalid file type. File must be one of: {allowedExtensionsList}."
                     );
@@ -112,9 +122,9 @@ namespace EvApplicationApi.Controllers
             var success = await _fileUploadRepository.DeleteFileAsync(id);
             if (!success)
             {
-                return NotFound(new { Message = "Entity not found." });
+                return NotFound("Entity not found.");
             }
-            return NoContent();
+            return Ok(id);
         }
     }
 }

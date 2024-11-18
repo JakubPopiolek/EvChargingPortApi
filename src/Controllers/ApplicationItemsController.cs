@@ -75,7 +75,7 @@ namespace EvApplicationApi.Controllers
         {
             Guid applicationGuid = _applicationRepository.StartApplication();
             _applicationRepository.Save();
-            return applicationGuid;
+            return Ok(applicationGuid);
         }
     }
 }
