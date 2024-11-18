@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EvApplicationApi.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20241028161340_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20241114103624_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,25 +20,22 @@ namespace EvApplicationApi.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
 
-            modelBuilder.Entity("Address", b =>
+            modelBuilder.Entity("EvApplicationApi.Models.Address", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("City")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Line1")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Line2")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Postcode")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Province")
@@ -51,45 +48,86 @@ namespace EvApplicationApi.Migrations
 
             modelBuilder.Entity("EvApplicationApi.Models.ApplicationItem", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ReferenceNumber")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("AddressId")
+                    b.Property<long?>("AddressId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Vrn")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ReferenceNumber");
+
+                    b.HasIndex("AddressId")
+                        .IsUnique();
+
+                    b.ToTable("ApplicationItems");
+                });
+
+            modelBuilder.Entity("EvApplicationApi.Models.UploadedFile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ApplicationReferenceNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("BLOB");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AddressId");
+                    b.HasIndex("ApplicationReferenceNumber");
 
-                    b.ToTable("ApplicationItems");
+                    b.ToTable("UploadedFiles");
                 });
 
             modelBuilder.Entity("EvApplicationApi.Models.ApplicationItem", b =>
                 {
-                    b.HasOne("Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId")
+                    b.HasOne("EvApplicationApi.Models.Address", "Address")
+                        .WithOne("ApplicationItem")
+                        .HasForeignKey("EvApplicationApi.Models.ApplicationItem", "AddressId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Address");
+                });
+
+            modelBuilder.Entity("EvApplicationApi.Models.UploadedFile", b =>
+                {
+                    b.HasOne("EvApplicationApi.Models.ApplicationItem", "ApplicationItem")
+                        .WithMany("Files")
+                        .HasForeignKey("ApplicationReferenceNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Address");
+                    b.Navigation("ApplicationItem");
+                });
+
+            modelBuilder.Entity("EvApplicationApi.Models.Address", b =>
+                {
+                    b.Navigation("ApplicationItem");
+                });
+
+            modelBuilder.Entity("EvApplicationApi.Models.ApplicationItem", b =>
+                {
+                    b.Navigation("Files");
                 });
 #pragma warning restore 612, 618
         }

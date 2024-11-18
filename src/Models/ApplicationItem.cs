@@ -1,11 +1,17 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace EvApplicationApi.Models;
 
 public class ApplicationItem
 {
-    public Guid Id { get; set; }
-    public required string FirstName { get; set; }
-    public required string LastName { get; set; }
-    public required string Email { get; set; }
-    public required Address Address { get; set; }
-    public required string Vrn { get; set; }
+    [Key]
+    public Guid ReferenceNumber { get; set; }
+    public long? AddressId { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Email { get; set; }
+    public Address? Address { get; set; }
+    public string? Vrn { get; set; }
+    public ICollection<UploadedFile> Files { get; } = new List<UploadedFile>();
 }

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EvApplicationApi.Controllers
 {
-    [Route("api/ping")]
+    [Route("api/Ping")]
     [ApiController]
     public class PingController : ControllerBase
     {
