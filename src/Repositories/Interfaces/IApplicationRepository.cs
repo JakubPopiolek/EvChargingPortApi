@@ -7,7 +7,7 @@ namespace EvApplicationApi.Repositories.Interfaces
     {
         void SubmitApplication(ApplicationItem applicationItem);
         Guid StartApplication();
-        Task<ApplicationItemDto?> GetApplicationItemPublic(Guid referenceNumber);
+        Task<ApplicationItemDto?> GetApplicationItemDto(Guid referenceNumber);
         Task<ApplicationItem?> GetApplicationItem(Guid referenceNumber);
         void Save();
     }

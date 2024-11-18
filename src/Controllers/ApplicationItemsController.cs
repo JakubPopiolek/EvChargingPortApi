@@ -21,7 +21,7 @@ namespace EvApplicationApi.Controllers
         public ActionResult<ApplicationItemDto> GetApplicationItem(Guid applicationReference)
         {
             var applicationItem = _applicationRepository
-                .GetApplicationItemPublic(applicationReference)
+                .GetApplicationItemDto(applicationReference)
                 .Result;
 
             if (applicationItem == null)
