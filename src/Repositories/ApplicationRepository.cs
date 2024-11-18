@@ -23,7 +23,7 @@ namespace EvApplicationApi.Repository
                 .FirstOrDefaultAsync(ai => ai.ReferenceNumber == referenceNumber);
         }
 
-        public async Task<ApplicationItemDto?> GetApplicationItemPublic(Guid referenceNumber)
+        public async Task<ApplicationItemDto?> GetApplicationItemDto(Guid referenceNumber)
         {
             var applicationItem = await context
                 .ApplicationItems.Include(ai => ai.Address)
