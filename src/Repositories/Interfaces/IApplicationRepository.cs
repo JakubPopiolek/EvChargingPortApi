@@ -9,6 +9,8 @@ namespace EvApplicationApi.Repositories.Interfaces
         Guid StartApplication();
         Task<ApplicationItemDto?> GetApplicationItemDto(Guid referenceNumber);
         Task<ApplicationItem?> GetApplicationItem(Guid referenceNumber);
+        Task<List<ApplicationItem>> GetAllExpiredIncompleteApplications();
+        Task<ApplicationItem> DeleteApplication(Guid referenceNumber);
         void Save();
     }
 }

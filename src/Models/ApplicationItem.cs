@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace EvApplicationApi.Models;
 
@@ -14,4 +14,7 @@ public class ApplicationItem
     public Address? Address { get; set; }
     public string? Vrn { get; set; }
     public ICollection<UploadedFile> Files { get; } = new List<UploadedFile>();
+
+    [JsonIgnore]
+    public DateTime? Timestamp { get; set; }
 }

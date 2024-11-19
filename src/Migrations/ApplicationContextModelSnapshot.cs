@@ -61,6 +61,9 @@ namespace EvApplicationApi.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("Timestamp")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Vrn")
                         .HasColumnType("TEXT");
 
