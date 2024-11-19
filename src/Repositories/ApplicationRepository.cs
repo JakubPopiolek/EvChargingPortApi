@@ -23,6 +23,27 @@ namespace EvApplicationApi.Repository
                 .FirstOrDefaultAsync(ai => ai.ReferenceNumber == referenceNumber);
         }
 
+        public async Task<List<ApplicationItem>> GetAllExpiredIncompleteApplications()
+        {
+            var oneHourAgo = DateTime.UtcNow.AddHours(-1);
+
+            return await context
+                .ApplicationItems.Where(application =>
+                    string.IsNullOrEmpty(application.Vrn) && application.Timestamp < oneHourAgo
+                )
+                .ToListAsync();
+        }
+
+        public async Task<ApplicationItem> DeleteApplication(Guid referenceNumber)
+        {
+            var application =
+                await context.ApplicationItems.FindAsync(referenceNumber)
+                ?? throw new KeyNotFoundException("Application not found.");
+            context.ApplicationItems.Remove(application);
+            context.SaveChanges();
+            return application;
+        }
+
         public async Task<ApplicationItemDto?> GetApplicationItemDto(Guid referenceNumber)
         {
             var applicationItem = await context
@@ -61,7 +82,11 @@ namespace EvApplicationApi.Repository
         {
             Guid referenceNumber = Guid.NewGuid();
             context.ApplicationItems.Add(
-                new ApplicationItem() { ReferenceNumber = referenceNumber }
+                new ApplicationItem()
+                {
+                    ReferenceNumber = referenceNumber,
+                    Timestamp = DateTime.UtcNow,
+                }
             );
             return referenceNumber;
         }

@@ -18,6 +18,8 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("WebApiDatabase"))
 );
 
+builder.Services.AddHostedService<DatabaseCleanupService>();
+
 builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
 builder.Services.AddScoped<IFileUploadRepository, FileUploadRepository>();
 

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EvApplicationApi.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20241114103624_init")]
-    partial class init
+    [Migration("20241119102649_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -62,6 +62,9 @@ namespace EvApplicationApi.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("Timestamp")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Vrn")

@@ -25,10 +25,23 @@ namespace src.Repositories
             return await context.SaveChangesAsync() > 0;
         }
 
-        public async Task<List<UploadedFileDto>> GetUploadedFiles(Guid id)
+        public async Task<bool> DeleteAllFilesInApplication(Guid referenceNumber)
         {
             var uploadedFiles = await context
-                .UploadedFiles.Where(item => item.ApplicationReferenceNumber == id)
+                .UploadedFiles.Where(item => item.ApplicationReferenceNumber == referenceNumber)
+                .ToListAsync();
+
+            uploadedFiles.ForEach(file =>
+            {
+                context.Remove(file);
+            });
+            return await context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<List<UploadedFileDto>> GetUploadedFiles(Guid referenceNumber)
+        {
+            var uploadedFiles = await context
+                .UploadedFiles.Where(item => item.ApplicationReferenceNumber == referenceNumber)
                 .ToListAsync();
 
             List<UploadedFileDto> outputFiles = [];
